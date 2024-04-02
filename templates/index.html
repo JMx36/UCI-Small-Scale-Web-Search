@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>UCI Search Engine</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            font-family: 'Arial', sans-serif;
+            background: #f2f2f2; /* Light grey background: https://brand.uci.edu/master-branding/color-palette/ */
+        }
+        #search-container {
+            text-align: center;
+            padding: 50px 0;
+            background-color: #0064a4; /* UCI Blue */
+        }
+        #search-container img {
+            width: 200px; /* adjust size accordingly */
+            margin-bottom: 30px;
+        }
+        #search-container input[type="text"] {
+            width: 50%;
+            padding: 15px;
+            margin-bottom: 20px;
+            font-size: 1.2em;
+            border-radius: 5px;
+            border: none;
+        }
+        #search-container button {
+            padding: 15px 30px;
+            background-color: #ffd200; /* UCI Gold */
+            color: #0064a4; /* UCI Blue */
+            text-transform: uppercase;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+        }
+        #search-container button:hover {
+            background-color: #e5c100; /* Darker shade for hover */
+        }
+        #results {
+            padding: 20px;
+            text-align: left;
+        }
+        #results .result-item {
+            background: #fff;
+            padding: 20px;
+            margin-bottom: 10px;
+            border-radius: 5px;
+            border-left: 5px solid #ffd200; /* UCI Gold accent */
+        }
+        #results .result-item .summary {
+            color: #555; /* Darker text for summary */
+            padding-top: 10px;
+        }
+        .result-link {
+            color: #0064a4; /* UCI Blue for links */
+            text-decoration: none;
+        }
+        .result-link:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div id="search-container">
+        <img src="/static/images/logo.png" alt="UCI Logo" id="logo"> <!-- UCI logo -->
+        <h1 style="color: #ffd200;">UCI Search</h1> <!-- UCI Gold for the title -->
+        <form action="/" method="get">
+            <input type="text" name="query" placeholder="Enter search query" value="{{ query }}">
+            <button type="submit">Search</button>
+        </form>
+    </div>
+
+    {% if query %}
+    <div id="results">
+        <h2>Results for '{{ query }}'</h2>
+        <p>Query processed in {{ query_time|round(2) }} ms</p>
+        {% for doc_id, url, score in results %}
+        <div class="result-item">
+            <a href="{{ url }}" class="result-link" target="_blank">{{ url }}</a>
+            <p>Document ID: {{ doc_id }}, Score: {{ score }}</p>
+            <p class="summary" id="summary-{{ loop.index0 }}">Loading summary...</p>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.result-item').forEach(function(item, index) {
+                // summarize URL content 
+                const content = item.querySelector('a').href; 
+
+                fetch('/summarize', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ content: content }), // Send the content for summarization
+                })
+                .then(response => response.json())
+                .then(data => {
+                    // Check if the summary was successfully fetched
+                    if (data.summary) {
+                        document.getElementById(`summary-${index}`).textContent = data.summary;
+                    } else {
+                        // Display a default message if the summary couldn't be fetched
+                        document.getElementById(`summary-${index}`).textContent = 'Summary unavailable';
+                    }
+                })
+                .catch(error => {
+                    console.error('Error fetching summary:', error);
+                    // Update the summary text with a default error message if the fetch fails
+                    document.getElementById(`summary-${index}`).textContent = 'Summary unavailable';
+                });
+            });
+        });
+    </script>
+</body>
+</html>
