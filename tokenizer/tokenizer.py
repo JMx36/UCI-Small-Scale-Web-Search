@@ -1,8 +1,8 @@
 from collections import defaultdict
-import nltk
 from tokenizer.token import Token
 from nltk.tokenize import word_tokenize
 import re
+import nltk
 from nltk.stem import PorterStemmer
 
 

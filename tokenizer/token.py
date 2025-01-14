@@ -1,9 +1,9 @@
 class Token:
-    def init(self, token, frequency, context_score):
+    def __init__(self, token, frequency, context_score):
         self.token = token
         self.frequency = frequency
         self.positions = [] #list to store the position of the tokens
-        self.n_gram = n_gram  # Indicates whether this is a 1-gram, 2-gram, etc.
+        self.n_gram = 1  # Indicates whether this is a 1-gram, 2-gram, etc.
         self.is_important = (
             False  # can set this to True based on HTML tagging context
         )

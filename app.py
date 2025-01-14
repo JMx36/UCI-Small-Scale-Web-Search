@@ -22,7 +22,7 @@ search_engine = SearchEngine(config, logger, 15)
 
 
 # Correctly initialize OpenAI with the API key
-openai.api_key = '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'
+openai.api_key = ''
 
 @app.route('/summarize', methods=['POST'])
 def summarize():
@@ -59,7 +59,7 @@ def generate_summary_with_openai(content):
         return summary
     except Exception as e:
         logger.error(f"OpenAI API call failed: {e}")
-        return "Summary generation failed."
+        return "Summary generation failed. API Key expired" 
 
 
 
